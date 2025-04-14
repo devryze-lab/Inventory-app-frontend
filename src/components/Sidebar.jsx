@@ -3,7 +3,6 @@ import logo from '/logo1.png';
 import { MdSpaceDashboard } from "react-icons/md";
 import { FaList, FaShoppingCart, FaCashRegister } from "react-icons/fa";
 import { HiOutlineViewGridAdd } from "react-icons/hi";
-import { HiBars3 } from "react-icons/hi2";
 import { NavLink } from 'react-router-dom';
 import Switch from '../Icons/Switch';
 
@@ -26,12 +25,6 @@ function Sidebar() {
                     <img className='w-[80px] max-md:block' src={logo} alt="Logo" />
                 </div>
                 <Switch setSidebarHide={setSidebarHide} sidebarHide={sidebarHide} />
-                {/* <div
-                    onClick={() => setSidebarHide(prev => !prev)}
-                    className='hover:bg-white/20 duration-500 rounded ml-5 cursor-pointer max-md:hidden'
-                >
-                    <HiBars3 className='size-7 text-white/70' />
-                </div> */}
             </div>
 
             <div className='max-md:fixed max-md:bottom-0 max-md:w-full'>

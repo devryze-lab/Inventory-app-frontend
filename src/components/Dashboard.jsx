@@ -107,7 +107,6 @@ function Dashboard({ garageParts, salesHistory }) {
         }
       </div>
 
-      {/* Revenue Breakdown Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white shadow-md rounded-2xl p-6">
           <h2 className="text-gray-500 text-sm">Today's Revenue</h2>
@@ -129,7 +128,6 @@ function Dashboard({ garageParts, salesHistory }) {
         </div>
       </div>
 
-      {/* Sales Graph */}
       <div>
         <div className='max-w-[100%]'>
           <SalesGraph salesHistory={salesHistory} />

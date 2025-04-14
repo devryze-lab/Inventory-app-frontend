@@ -6,7 +6,6 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
   const handleDeleteSale = (saleId) => {
     const saleToDelete = salesHistory.find(sale => sale.id === saleId);
 
-    // Restore inventory and sold count
     const updatedParts = garageParts.map(part =>
       part.id === saleToDelete.partId
         ? {
@@ -23,7 +22,6 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
 
   const handleClearAll = () => {
     if (window.confirm('Are you sure you want to clear all sales?')) {
-      // Restore all sales quantities to inventory
       const restoredParts = garageParts.map(part => {
         const totalSold = salesHistory
           .filter(sale => sale.partId === part.id)
@@ -57,7 +55,6 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
           </button>
         </div>
 
-        {/* Sales Table */}
         {salesHistory.length === 0 ? (
           <p className="text-gray-500">No sales recorded yet.</p>
         ) : (
@@ -65,7 +62,6 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
             <table className="min-w-full border text-sm">
               <thead>
                 <tr className="bg-gray-100">
-                  {/* <th className="border px-4 py-2">Sale ID</th> */}
                   <th className="border px-4 py-2">Item Name</th>
                   <th className="border px-4 py-2">Quantity</th>
                   <th className="border px-4 py-2">Total Bill (Rs)</th>
@@ -80,7 +76,6 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
 
                   return (
                     <tr key={sale.id}>
-                      {/* <td className="border px-4 py-2">{sale.id}</td> */}
                       <td className="border px-4 py-2">{part ? part.name : 'Deleted Part'}</td>
                       <td className="border px-4 py-2">{sale.quantitySold}</td>
                       <td className="border px-4 py-2">{totalBill}</td>

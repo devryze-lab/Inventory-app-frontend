@@ -12,7 +12,6 @@ import {
   Legend,
 } from 'chart.js';
 
-// Register chart components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -24,7 +23,6 @@ ChartJS.register(
   Legend
 );
 
-// Helper to get the date N days ago
 const getDateNDaysAgo = (days) => {
   const date = new Date();
   date.setDate(date.getDate() - days);
@@ -59,7 +57,7 @@ function SalesGraph({ salesHistory = [] }) {
     const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   
     sales.forEach((sale) => {
-      const saleDateUTC = new Date(sale.date); // stored in ISO/UTC
+      const saleDateUTC = new Date(sale.date);
       const localDate = new Date(
         saleDateUTC.getUTCFullYear(),
         saleDateUTC.getUTCMonth(),
@@ -69,7 +67,6 @@ function SalesGraph({ salesHistory = [] }) {
         saleDateUTC.getUTCSeconds()
       );
   
-      // check if sale is today in local time
       if (
         localDate.getDate() === today.getDate() &&
         localDate.getMonth() === today.getMonth() &&

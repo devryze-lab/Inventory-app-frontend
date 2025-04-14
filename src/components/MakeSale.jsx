@@ -109,7 +109,7 @@ function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }
         </div>
 
         <button
-          type="button" // Make sure it's not "submit"
+          type="button"
           className="bg-black/80 cursor-pointer text-white px-4 py-2 rounded hover:bg-black w-full"
           onClick={handleAddSale}
         >

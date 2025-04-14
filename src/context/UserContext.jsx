@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import UserContext from "./UserContext";
 
 const UserContextProvider = ({children}) => {
-    const [SidebarContext, setSidebarContext] = useState(false)
+    const [updateItem, setUpdateItem] = useState('')
     return(
-        <UserContext.Provider value={{SidebarContext, setSidebarContext}}>
+        <UserContext.Provider value={{updateItem, setUpdateItem}}>
             {children}
         </UserContext.Provider>
     )

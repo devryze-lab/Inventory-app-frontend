@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { FiShoppingCart, FiBox } from "react-icons/fi";
 import { FaTag } from "react-icons/fa";
 import { IoSearchSharp } from "react-icons/io5";
-import { CiCreditCardOff } from "react-icons/ci";
+import { RiEditBoxFill } from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
+import UserContext from '../context/UserContext';
+import { NavLink } from 'react-router-dom';
 
 function ItemsList({ garageParts, setGarageParts }) {
   const [displayedParts, setDisplayedParts] = useState([]);
   const [searchItem, setSearchItem] = useState('');
+  const { setUpdateItem } = useContext(UserContext)
 
   useEffect(() => {
     setDisplayedParts(shuffleArray(garageParts));
@@ -40,6 +43,11 @@ function ItemsList({ garageParts, setGarageParts }) {
     setDisplayedParts(filtered);
   }
 
+  function handleEdit(id) {
+    let item = displayedParts.find(card => card.id === id)
+    setUpdateItem(item)
+  }
+
   return (
     <div className='p-4 bg-[#171717] min-h-screen'>
       <div className='flex flex-col gap-10'>
@@ -58,48 +66,56 @@ function ItemsList({ garageParts, setGarageParts }) {
 
         <div className='columns-4 min-[1700px]:columns-6 max-[1280px]:columns-4 max-[1024px]:columns-3 max-[900px]:columns-2 max-[480px]:columns-1'>
           {displayedParts.map((item) => (
-            <div key={item.id} className="bg-white rounded-lg shadow-md break-inside-avoid mb-4">
-              <img className='min-w-full object-cover rounded-md' src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'} alt={item.name} />
+            <div key={item.id} className="bg-white rounded-xl shadow-md break-inside-avoid mb-4">
+              <img className='min-w-full object-cover rounded-xl' src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'} alt={item.name} />
               <div className='px-3 pb-3'>
                 <div className='flex flex-wrap items-start justify-between py-2'>
                   <div>
-                    <h2 className='text-lg font-semibold'>{item.name}</h2>
-                    <p className="flex items-center text-sm text-gray-600">
-                      <FaTag className="mr-1 text-gray-600" /> {item.category}
+                    <h2 className='text-lg font-semibold text-gray-700'>{item.name}</h2>
+                    <p className="flex items-center text-sm text-gray-700">
+                      <FaTag className="mr-1 text-gray-700" /> {item.category}
                     </p>
                   </div>
                   <div className='flex flex-col items-end'>
-                    <p> <span className='text-md font-semibold'>Price:</span> RS.{item.sellingPrice}</p>
+                    <p className='text-sm text-gray-500'> <span className='text-sm font-semibold'>Price:</span> RS.{item.sellingPrice}</p>
                     <div className='flex flex-wrap'>
-                    <h2 className='text-md font-semibold'>Retail:</h2>
-                    <p className="flex items-center text-sm">RS.{item.retailPrice}</p>
-                  </div>
+                      <h2 className='text-sm text-gray-500 font-semibold'>Retail:</h2>
+                      <p className="flex items-center text-sm text-gray-500">RS.{item.retailPrice}</p>
+                    </div>
                   </div>
                 </div>
 
                 <div className='flex items-center flex-col text-center gap-3 justify-around mb-3'>
-                  <h1 className='text-md font-bold'>Inventory</h1>
+                  <h1 className='text-md font-bold text-gray-600'>Inventory</h1>
                   <div className='flex gap-2'>
-                <p className="flex items-center text-sm  border-r-1 pr-2">
+                    <p className="flex items-center text-sm text-gray-500  border-r-1 border-gray-300 pr-2">
                       <FiShoppingCart className="mr-1" />
                       <span className="font-medium">Sold:</span> {item.sold}
                     </p>
-                  <div >
-                    <p className="flex items-center text-sm">
-                      <FiBox className="mr-1" />
-                      <span className="font-medium">Stock:</span> {item.inventoryCount}
-                    </p>
-                  </div>
+                    <div >
+                      <p className="flex items-center text-sm text-gray-500">
+                        <FiBox className="mr-1" />
+                        <span className="font-medium">Stock:</span> {item.inventoryCount}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-end gap-3 mt-2">
-                  <button
-                    className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer text-emerald-600 shadow-sm transition-all duration-200"
-                    title="Mark as Paid"
+                <div className="flex items-center justify-end gap-3  mt-2">
+                  <NavLink
+                    to='/addItems'
+                    className={({ isActive }) =>
+                      `flex items-center  cursor-pointer duration-700 rounded ${isActive ? 'bg-white/30 text-white font-semibold' : 'text-white hover:bg-white/20'}`
+                    }
                   >
-                    <CiCreditCardOff className="size-5" />
-                  </button>
+                    <button
+                      onClick={() => handleEdit(item.id)}
+                      className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer text-emerald-600 shadow-sm transition-all duration-200"
+                      title="Mark as Paid"
+                    >
+                      <RiEditBoxFill className="size-5" />
+                    </button>
+                  </NavLink>
 
                   <button
                     onClick={() => deleteCard(item.id)}

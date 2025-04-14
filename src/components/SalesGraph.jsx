@@ -54,32 +54,19 @@ function SalesGraph({ salesHistory = [] }) {
   const groupSalesByHour = (sales) => {
     const salesGrouped = new Array(24).fill(0);
     const today = new Date();
-    const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  
+    today.setHours(0, 0, 0, 0); // Start of today in local time
+    
     sales.forEach((sale) => {
-      const saleDateUTC = new Date(sale.date);
-      const localDate = new Date(
-        saleDateUTC.getUTCFullYear(),
-        saleDateUTC.getUTCMonth(),
-        saleDateUTC.getUTCDate(),
-        saleDateUTC.getUTCHours(),
-        saleDateUTC.getUTCMinutes(),
-        saleDateUTC.getUTCSeconds()
-      );
-  
-      if (
-        localDate.getDate() === today.getDate() &&
-        localDate.getMonth() === today.getMonth() &&
-        localDate.getFullYear() === today.getFullYear()
-      ) {
-        const hour = localDate.getHours();
+      const saleDate = new Date(sale.date);
+      // Check if sale is from today (local time)
+      if (saleDate >= today) {
+        const hour = saleDate.getHours(); // Get local hour
         salesGrouped[hour] += sale.quantitySold;
       }
     });
   
     return salesGrouped;
   };
-  
 
   const last30DaysSales = groupSalesByDate(salesHistory, 30);
   const last7DaysSales = groupSalesByDate(salesHistory, 7);
@@ -125,23 +112,92 @@ function SalesGraph({ salesHistory = [] }) {
   };
 
   return (
-    <div className="bg-white p-3 rounded-2xl">
-      <h2 className="text-xl font-bold mb-4 text-center">Sales Graphs</h2>
+    <div className="bg-white p-6 rounded-xl shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-700">Sales Analytics</h2>
 
-      <div className="flex max-lg:flex-col w-full gap-4">
-        <div className="mb-8 bg-white min-w-[33%] max-lg:w-full" style={{ overflowX: 'auto' }}>
-          <h3 className="text-lg font-semibold mb-2">Sales in the Last 24 Hours</h3>
-          <Bar data={chartDataToday} options={{ responsive: true }} />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <h3 className="text-lg font-semibold mb-3 text-gray-700">Today's Sales by Hour</h3>
+          <div className="h-64">
+            <Bar 
+              data={chartDataToday} 
+              options={{ 
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Quantity Sold'
+                    }
+                  },
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Hour of Day'
+                    }
+                  }
+                }
+              }} 
+            />
+          </div>
         </div>
 
-        <div className="mb-8 bg-white min-w-[33%] max-lg:w-full" style={{ overflowX: 'auto' }}>
-          <h3 className="text-lg font-semibold mb-2">Sales in Last 7 Days</h3>
-          <Line data={chartDataLast7Days} options={{ responsive: true }} />
+        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <h3 className="text-lg font-semibold mb-3 text-gray-700">Last 7 Days Sales</h3>
+          <div className="h-64">
+            <Line 
+              data={chartDataLast7Days} 
+              options={{ 
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Quantity Sold'
+                    }
+                  },
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Date'
+                    }
+                  }
+                }
+              }} 
+            />
+          </div>
         </div>
 
-        <div className="mb-8 bg-white min-w-[33%] max-lg:w-full" style={{ overflowX: 'auto' }}>
-          <h3 className="text-lg font-semibold mb-2">Sales in Last 30 Days</h3>
-          <Line data={chartDataLast30Days} options={{ responsive: true }} />
+        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <h3 className="text-lg font-semibold mb-3 text-gray-700">Last 30 Days Sales</h3>
+          <div className="h-64">
+            <Line 
+              data={chartDataLast30Days} 
+              options={{ 
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    title: {
+                      display: true,
+                      text: 'Quantity Sold'
+                    }
+                  },
+                  x: {
+                    title: {
+                      display: true,
+                      text: 'Date'
+                    }
+                  }
+                }
+              }} 
+            />
+          </div>
         </div>
       </div>
     </div>

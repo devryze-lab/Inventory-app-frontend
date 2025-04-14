@@ -1,17 +1,34 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
+import UserContext from '../context/UserContext';
 
 function AddPartForm({ garageParts, setGarageParts }) {
+  const { updateItem, setUpdateItem } = useContext(UserContext);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    inventoryCount: '',
-    retailPrice: '',
-    sellingPrice: '',
+    inventoryCount: 0,
+    retailPrice: 0,
+    sellingPrice: 0,
     imageUrl: '',
-    sold: ''
+    sold: 0
   });
 
   const fileInputRef = useRef();
+
+  useEffect(() => {
+    if (updateItem) {
+      setFormData({
+        name: updateItem.name ?? '',
+        category: updateItem.category ?? '',
+        inventoryCount: updateItem.inventoryCount ?? 0,
+        retailPrice: updateItem.retailPrice ?? 0,
+        sellingPrice: updateItem.sellingPrice ?? 0,
+        imageUrl: updateItem.imageUrl ?? '',
+        sold: updateItem.sold ?? 0
+      });
+    }
+    console.log(updateItem);
+  }, [updateItem]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,9 +37,10 @@ function AddPartForm({ garageParts, setGarageParts }) {
 
     setFormData((prev) => ({
       ...prev,
-      [name]: name === 'sold' || name.includes('Price') || name === 'inventoryCount'
-        ? Number(value)
-        : value
+      [name]:
+        name === 'sold' || name.includes('Price') || name === 'inventoryCount'
+          ? Number(value)
+          : value
     }));
   };
 
@@ -36,50 +54,42 @@ function AddPartForm({ garageParts, setGarageParts }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const nameToMatch = formData.name.trim().toLowerCase();
-    const existingIndex = garageParts.findIndex(
-      (part) => part.name.toLowerCase() === nameToMatch
-    );
 
-    if (existingIndex !== -1) {
-      const confirmUpdate = window.confirm(
-        `Item "${garageParts[existingIndex].name}" already exists. Do you want to update it with new values?`
+    if (updateItem) {
+      const updatedParts = garageParts.map((part) =>
+        part.id === updateItem.id ? { ...part, ...formData } : part
       );
-      if (confirmUpdate) {
-        const updatedParts = [...garageParts];
-        updatedParts[existingIndex] = {
-          ...updatedParts[existingIndex],
-          ...formData
-        };
-        setGarageParts(updatedParts);
-        resetForm();
-      }
-    } else {
-      const newItem = {
-        id: Date.now(),
-        ...formData
-      };
-      setGarageParts([...garageParts, newItem]);
+      setGarageParts(updatedParts);
+      setUpdateItem(null);
       resetForm();
+      return;
     }
+
+    const newItem = {
+      id: Date.now(),
+      ...formData
+    };
+    setGarageParts([...garageParts, newItem]);
+    resetForm();
   };
 
   const resetForm = () => {
     setFormData({
       name: '',
       category: '',
-      inventoryCount: '',
-      retailPrice: '',
-      sellingPrice: '',
+      inventoryCount: 0,
+      retailPrice: 0,
+      sellingPrice: 0,
       imageUrl: '',
-      sold: ''
+      sold: 0
     });
     fileInputRef.current.value = null;
+    setUpdateItem(null);
   };
 
   return (
-    <div className='p-4 bg-[#171717] min-h-screen'>
-      <form onSubmit={handleSubmit} className="p-6 bg-white rounded-xl shadow-lg space-y-5 max-w-[80%] max-md:max-w-[98%] mx-auto border border-gray-100">
+    <div className='p-4 bg-[#171717] min-h-screen flex items-center justify-center'>
+      <form onSubmit={handleSubmit} className="p-6 bg-white rounded-xl shadow-lg space-y-5 max-w-[80%] max-md:max-w-[98%] border border-gray-100   w-[80%] max-sm:w-[90%] max-md:mb-[28%] mb-[10%]">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Add/Update Inventory Item</h2>
         <p className="text-gray-600 mb-6">Fill in the details below to add or update an item</p>
 
@@ -146,7 +156,7 @@ function AddPartForm({ garageParts, setGarageParts }) {
                 onChange={handleChange}
                 required
                 min="0"
-                step="0.01"
+                step="1"
                 className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 outline-none focus:border-transparent"
                 placeholder="0.00"
               />
@@ -164,7 +174,7 @@ function AddPartForm({ garageParts, setGarageParts }) {
                 onChange={handleChange}
                 required
                 min="0"
-                step="0.01"
+                step="1"
                 className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 outline-none focus:border-transparent"
                 placeholder="0.00"
               />
@@ -213,9 +223,7 @@ function AddPartForm({ garageParts, setGarageParts }) {
             type="submit"
             className="px-5 py-2.5 bg-[#171717] text-white rounded-lg hover:bg-[black] cursor-pointer transition-colors font-medium"
           >
-            {garageParts.some(part => part.name.toLowerCase() === formData.name.toLowerCase())
-              ? 'Update Item'
-              : 'Add Item'}
+            {updateItem ? 'Update Item' : 'Add Item'}
           </button>
         </div>
       </form>

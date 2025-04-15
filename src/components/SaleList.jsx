@@ -9,10 +9,10 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
     const updatedParts = garageParts.map(part =>
       part.id === saleToDelete.partId
         ? {
-            ...part,
-            inventoryCount: part.inventoryCount + saleToDelete.quantitySold,
-            sold: part.sold - saleToDelete.quantitySold,
-          }
+          ...part,
+          inventoryCount: part.inventoryCount + saleToDelete.quantitySold,
+          sold: part.sold - saleToDelete.quantitySold,
+        }
         : part
     );
 
@@ -43,8 +43,7 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
 
   return (
     <div className='bg-[#171717] min-h-screen flex items-center justify-center'>
-      <div className="bg-white p-6 rounded-xl shadow-md w-[80%] max-sm:w-[92%] mx-auto  max-md:mb-0 mb-[10%]">
-        {/* Sale List Header */}
+      <div className="bg-white p-6 rounded-xl shadow-md w-[80%] min-lg:mt-12 max-sm:w-[92%] mx-auto  max-md:mb-0 mb-[10%]">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-gray-800">Sale List</h3>
           <button

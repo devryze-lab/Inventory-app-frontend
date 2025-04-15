@@ -62,7 +62,6 @@ function Dashboard({ garageParts, salesHistory }) {
 
   return (
     <div className="p-6 flex flex-col gap-8 bg-[#171717] min-h-screen">
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white shadow-md rounded-xl p-6 flex items-baseline-last justify-between">
           <div>

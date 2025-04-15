@@ -54,13 +54,12 @@ function SalesGraph({ salesHistory = [] }) {
   const groupSalesByHour = (sales) => {
     const salesGrouped = new Array(24).fill(0);
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Start of today in local time
+    today.setHours(0, 0, 0, 0);
     
     sales.forEach((sale) => {
       const saleDate = new Date(sale.date);
-      // Check if sale is from today (local time)
       if (saleDate >= today) {
-        const hour = saleDate.getHours(); // Get local hour
+        const hour = saleDate.getHours(); 
         salesGrouped[hour] += sale.quantitySold;
       }
     });

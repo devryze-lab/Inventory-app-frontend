@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import PopDownBox from './PopDownBox';
 
 function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }) {
-  const dateToday = new Date()
   const [selectedPartId, setSelectedPartId] = useState('');
   const [quantitySold, setQuantitySold] = useState('');
-  const [date, setDate] = useState(dateToday);
+  const [date, setDate] = useState(() => {
+    const now = new Date();
+    // Convert to local datetime string in correct format for input
+    return now.toISOString().slice(0, 16);
+  });
   const [customBill, setCustomBill] = useState('');
+  const [popOut, setPopOut] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setPopOut(false);
+    }, 1000);
+  }, [salesHistory]);
 
   const handleAddSale = (e) => {
     e.preventDefault();
@@ -22,34 +33,42 @@ function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }
       id: Date.now(),
       partId: part.id,
       quantitySold: Number(quantitySold),
-      date: new Date(date).toISOString(),
+      date: new Date(date).toISOString(), // Store as ISO string
       totalBill,
     };
 
     const updatedParts = garageParts.map(p =>
       p.id === part.id
         ? {
-          ...p,
-          inventoryCount: p.inventoryCount - Number(quantitySold),
-          sold: p.sold + Number(quantitySold),
-        }
+            ...p,
+            inventoryCount: p.inventoryCount - Number(quantitySold),
+            sold: p.sold + Number(quantitySold),
+          }
         : p
     );
 
     setGarageParts(updatedParts);
     setSalesHistory([...salesHistory, newSale]);
 
+    // Reset form
     setSelectedPartId('');
     setQuantitySold('');
-    setDate('');
     setCustomBill('');
+    setPopOut(true);
+    // Reset date to current time
+    setDate(new Date().toISOString().slice(0, 16));
   };
 
   return (
-    <div className='flex items-center justify-center bg-[#171717]  h-screen'>
-      <div className="bg-white p-6 rounded-xl shadow-md  w-[80%] max-sm:w-[90%] max-md:mb-[28%] mb-[10%]">
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">Make Sale</h2>
-      <p className="text-gray-600 mb-6">Fill in the details below to make a sale.</p>
+    <div className='flex items-center justify-center bg-[#171717] h-screen'>
+      {popOut && (
+        <div className='absolute -top-5'>
+          <PopDownBox text={'Sale Added Successfully'} />
+        </div>
+      )}
+      <div className="bg-white p-6 rounded-xl shadow-md w-[80%] max-sm:w-[90%] max-md:mb-[28%] mb-[10%]">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">Make Sale</h2>
+        <p className="text-gray-600 mb-6">Fill in the details below to make a sale.</p>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Select Part</label>
@@ -78,8 +97,9 @@ function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }
           />
         </div>
 
+
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-1 ">Sale Date</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Sale Date</label>
           <input
             type="datetime-local"
             className="w-full px-3 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 outline-none focus:border-transparent"

@@ -1,8 +1,10 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import UserContext from '../context/UserContext';
+import PopDownBox from './PopDownBox';
 
 function AddPartForm({ garageParts, setGarageParts }) {
   const { updateItem, setUpdateItem } = useContext(UserContext);
+  const [popOut, setPopout] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -27,8 +29,10 @@ function AddPartForm({ garageParts, setGarageParts }) {
         sold: updateItem.sold ?? 0
       });
     }
-    console.log(updateItem);
-  }, [updateItem]);
+    setTimeout(() => {
+      setPopout(false)
+    }, 1000);
+  }, [updateItem, garageParts]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -85,10 +89,16 @@ function AddPartForm({ garageParts, setGarageParts }) {
     });
     fileInputRef.current.value = null;
     setUpdateItem(null);
+    setPopout(true)
   };
 
   return (
     <div className='p-4 bg-[#171717] min-h-screen flex items-center justify-center'>
+      {popOut &&
+        <div className='absolute -top-5'>
+          <PopDownBox text={'Item Added Successfully'} />
+        </div>
+      }
       <form onSubmit={handleSubmit} className="p-6 bg-white rounded-xl shadow-lg space-y-5 max-w-[80%] max-md:max-w-[98%] border border-gray-100   w-[80%] max-sm:w-[90%] max-md:mb-[28%] mb-[10%]">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Add/Update Inventory Item</h2>
         <p className="text-gray-600 mb-6">Fill in the details below to add or update an item</p>

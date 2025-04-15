@@ -67,7 +67,7 @@ function ItemsList({ garageParts, setGarageParts }) {
         <div className='columns-4 min-[1700px]:columns-6 max-[1280px]:columns-4 max-[1024px]:columns-3 max-[900px]:columns-2 max-[480px]:columns-1'>
           {displayedParts.map((item) => (
             <div key={item.id} className="bg-white rounded-xl shadow-md break-inside-avoid mb-4">
-              <img className='min-w-full object-cover rounded-xl' src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'} alt={item.name} />
+              <img loading='lazy' className='min-w-full object-cover rounded-lg' src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'} alt={item.name} />
               <div className='px-3 pb-3'>
                 <div className='flex flex-wrap items-start justify-between py-2'>
                   <div>

@@ -1,8 +1,17 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MdOutlineDeleteOutline } from "react-icons/md";
+import PopDownBox from './PopDownBox';
 
 
 function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }) {
+  const [popOut, setPopOut] = useState(false)
+  const [message, setMessage] =useState('')
+  useEffect(() => {
+    setTimeout(() => {
+      setPopOut(false)
+    }, 1200);
+  }, [salesHistory])
+  
   const handleDeleteSale = (saleId) => {
     const saleToDelete = salesHistory.find(sale => sale.id === saleId);
 
@@ -15,7 +24,8 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
         }
         : part
     );
-
+    setPopOut(true)
+    setMessage('Sale Removed')
     setGarageParts(updatedParts);
     setSalesHistory(salesHistory.filter(sale => sale.id !== saleId));
   };
@@ -33,7 +43,8 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
           sold: part.sold - totalSold,
         };
       });
-
+      setPopOut(true)
+      setMessage("Sale list is cleared Successfully")
       setGarageParts(restoredParts);
       setSalesHistory([]);
     }
@@ -43,6 +54,11 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
 
   return (
     <div className='bg-[#171717] min-h-screen flex items-center justify-center'>
+      {popOut &&
+        <div className='absolute -top-5'>
+          <PopDownBox text={message} />
+        </div>
+      }
       <div className="bg-white p-6 rounded-xl shadow-md w-[80%] min-lg:mt-12 max-sm:w-[92%] mx-auto  max-md:mb-0 mb-[10%]">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold text-gray-800">Sale List</h3>

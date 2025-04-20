@@ -1,22 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { MdOutlineDeleteOutline } from "react-icons/md";
 import PopDownBox from './PopDownBox';
+import UserContext from '../context/UserContext';
+import axios from 'axios'
 
 
-function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }) {
+function MakeList() {
   const [popOut, setPopOut] = useState(false)
-  const [message, setMessage] =useState('')
+  const [message, setMessage] = useState('')
+  const { garageParts, salesHistory, setSalesHistory, setGarageParts } = useContext(UserContext);
   useEffect(() => {
     setTimeout(() => {
       setPopOut(false)
     }, 1200);
   }, [salesHistory])
-  
-  const handleDeleteSale = (saleId) => {
-    const saleToDelete = salesHistory.find(sale => sale.id === saleId);
+
+  const handleDeleteSale = async (saleId) => {
+    const saleToDelete = salesHistory.find(sale => sale._id === saleId);
+    if (!saleToDelete) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/sales/${saleId}`)
+      const updatedParts = garageParts.map(part => part._id === saleToDelete.partId ? { ...part, inventoryCount: part.inventoryCount + saleToDelete.quantitySold, sold: part.sold - saleToDelete.quantitySold, } : part)
+      setGarageParts(updatedParts);
+      setSalesHistory(salesHistory.filter(sale => sale._id !== saleId));
+      setMessage('Sale Removed');
+      setPopOut(true);
+    } catch (error) {
+      console.error('Error deleting sale:', err);
+      alert('Failed to delete sale. Please try again.');
+    }
 
     const updatedParts = garageParts.map(part =>
-      part.id === saleToDelete.partId
+      part._id === saleToDelete.partId
         ? {
           ...part,
           inventoryCount: part.inventoryCount + saleToDelete.quantitySold,
@@ -27,28 +43,39 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
     setPopOut(true)
     setMessage('Sale Removed')
     setGarageParts(updatedParts);
-    setSalesHistory(salesHistory.filter(sale => sale.id !== saleId));
+    const deleteSale  =  salesHistory.filter(sale => sale._id !== saleId);
+    setSalesHistory(deleteSale);
   };
 
-  const handleClearAll = () => {
-    if (window.confirm('Are you sure you want to clear all sales?')) {
+  const handleClearAll = async () => {
+    const confirm = window.confirm('Are you sure you want to clear all sales?');
+    if (!confirm) return;
+  
+    try {
+      await axios.delete('http://localhost:5000/api/sales'); // 🧠 Backend: DELETE all sales
+  
       const restoredParts = garageParts.map(part => {
         const totalSold = salesHistory
-          .filter(sale => sale.partId === part.id)
+          .filter(sale => sale.partId === part._id)
           .reduce((sum, sale) => sum + sale.quantitySold, 0);
-
+  
         return {
           ...part,
           inventoryCount: part.inventoryCount + totalSold,
           sold: part.sold - totalSold,
         };
       });
-      setPopOut(true)
-      setMessage("Sale list is cleared Successfully")
+  
       setGarageParts(restoredParts);
       setSalesHistory([]);
+      setMessage("Sale list is cleared Successfully");
+      setPopOut(true);
+    } catch (err) {
+      console.error('Error clearing sales:', err);
+      alert('Failed to clear sales. Please try again.');
     }
   };
+  
 
   const formatDate = (isoString) => new Date(isoString).toLocaleString();
 
@@ -86,18 +113,20 @@ function MakeList({ garageParts, salesHistory, setSalesHistory, setGarageParts }
               </thead>
               <tbody>
                 {salesHistory.map(sale => {
-                  const part = garageParts.find(p => p.id === sale.partId);
+                  const part = typeof sale.partId === "object"
+                  ? sale.partId
+                  : garageParts.find(p => p._id === sale.partId);
                   const totalBill = sale.totalBill ?? (part?.sellingPrice ?? 0) * sale.quantitySold;
 
                   return (
-                    <tr key={sale.id}>
+                    <tr key={sale._id}>
                       <td className="border border-gray-300 px-4 py-2 text-gray-700">{part ? part.name : 'Deleted Part'}</td>
                       <td className="border border-gray-300 px-4 py-2 text-gray-600">{sale.quantitySold}</td>
                       <td className="border border-gray-300 px-4 py-2 text-gray-600">{totalBill}</td>
                       <td className="border border-gray-300 px-4 py-2 text-gray-600">{formatDate(sale.date)}</td>
                       <td className="border border-gray-300 px-4 py-2 text-gray-600">
                         <button
-                          onClick={() => handleDeleteSale(sale.id)}
+                          onClick={() => handleDeleteSale(sale._id)}
                           className="text-red-300 px-2 py-1 rounded-xl cursor-pointer flex items-center"
                         >
                           Delete <MdOutlineDeleteOutline className='size-4' />

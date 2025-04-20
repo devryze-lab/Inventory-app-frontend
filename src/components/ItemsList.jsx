@@ -6,11 +6,12 @@ import { RiEditBoxFill } from "react-icons/ri";
 import { RiDeleteBin6Fill } from "react-icons/ri";
 import UserContext from '../context/UserContext';
 import { NavLink } from 'react-router-dom';
+import axios from 'axios'
 
-function ItemsList({ garageParts, setGarageParts }) {
+function ItemsList() {
   const [displayedParts, setDisplayedParts] = useState([]);
   const [searchItem, setSearchItem] = useState('');
-  const { setUpdateItem } = useContext(UserContext)
+  const { setUpdateItem, garageParts, setGarageParts } = useContext(UserContext)
 
   useEffect(() => {
     setDisplayedParts(shuffleArray(garageParts));
@@ -29,9 +30,16 @@ function ItemsList({ garageParts, setGarageParts }) {
     const confirmDelete = window.confirm("Are you sure you want to delete this item?");
     if (!confirmDelete) return;
 
-    const updatedGarageParts = garageParts.filter(item => item.id !== id);
-    setGarageParts(updatedGarageParts);
-    setDisplayedParts(updatedGarageParts);
+    axios.delete(`http://localhost:5000/api/garage-Parts/${id}`)
+      .then(() => {
+        const updatedGarageParts = garageParts.filter(item => item._id !== id);
+        setGarageParts(updatedGarageParts);
+        setDisplayedParts(updatedGarageParts);
+      })
+      .catch(err => {
+        console.error("Error deleting item:", err);
+        alert("Failed to delete the item. Please try again.");
+      });
   }
 
   function filterSearchedValue(value) {
@@ -66,8 +74,13 @@ function ItemsList({ garageParts, setGarageParts }) {
 
         <div className='columns-4 min-[1700px]:columns-6 max-[1280px]:columns-4 max-[1024px]:columns-3 max-[900px]:columns-2 max-[480px]:columns-1'>
           {displayedParts.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl shadow-md break-inside-avoid mb-4">
-              <img loading='lazy' className='min-w-full object-cover rounded-lg' src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'} alt={item.name} />
+            <div key={item._id} className="bg-white rounded-xl shadow-md break-inside-avoid mb-4">
+              <img
+                loading='lazy'
+                className='min-w-full object-cover rounded-lg'
+                src={item.imageUrl ? `http://localhost:5000${item.imageUrl}` : 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
+                alt={item.name}
+              />
               <div className='px-3 pb-3'>
                 <div className='flex flex-wrap items-start justify-between py-2'>
                   <div>
@@ -118,7 +131,7 @@ function ItemsList({ garageParts, setGarageParts }) {
                   </NavLink>
 
                   <button
-                    onClick={() => deleteCard(item.id)}
+                    onClick={() => deleteCard(item._id)}
                     className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer text-[#db4439] shadow-sm transition-all duration-200"
                     title="Delete Item"
                   >

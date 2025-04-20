@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Line, Bar } from 'react-chartjs-2';
+import UserContext from '../context/UserContext';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -30,7 +31,8 @@ const getDateNDaysAgo = (days) => {
   return date;
 };
 
-function SalesGraph({ salesHistory = [] }) {
+function SalesGraph() {
+  const { salesHistory } = useContext(UserContext);
   if (!Array.isArray(salesHistory)) {
     console.error("Invalid salesHistory data. Expected an array.");
     return <div>Error: Sales history data is missing or invalid.</div>;
@@ -59,7 +61,7 @@ function SalesGraph({ salesHistory = [] }) {
     sales.forEach((sale) => {
       const saleDate = new Date(sale.date);
       if (saleDate >= today) {
-        const hour = saleDate.getHours(); 
+        const hour = saleDate.getHours();
         salesGrouped[hour] += sale.quantitySold;
       }
     });
@@ -71,12 +73,16 @@ function SalesGraph({ salesHistory = [] }) {
   const last7DaysSales = groupSalesByDate(salesHistory, 7);
   const salesPerHourToday = groupSalesByHour(salesHistory);
 
+  // Sort date keys for consistent chart display
+  const sorted30 = Object.keys(last30DaysSales).sort();
+  const sorted7 = Object.keys(last7DaysSales).sort();
+
   const chartDataLast30Days = {
-    labels: Object.keys(last30DaysSales),
+    labels: sorted30,
     datasets: [
       {
         label: 'Sales (Last 30 Days)',
-        data: Object.values(last30DaysSales),
+        data: sorted30.map(date => last30DaysSales[date]),
         borderColor: 'rgba(75,192,192,1)',
         backgroundColor: 'rgba(75,192,192,0.2)',
         fill: false,
@@ -85,11 +91,11 @@ function SalesGraph({ salesHistory = [] }) {
   };
 
   const chartDataLast7Days = {
-    labels: Object.keys(last7DaysSales),
+    labels: sorted7,
     datasets: [
       {
         label: 'Sales (Last 7 Days)',
-        data: Object.values(last7DaysSales),
+        data: sorted7.map(date => last7DaysSales[date]),
         borderColor: 'rgba(153,102,255,1)',
         backgroundColor: 'rgba(153,102,255,0.2)',
         fill: false,
@@ -118,27 +124,21 @@ function SalesGraph({ salesHistory = [] }) {
         <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
           <h3 className="text-lg font-semibold mb-3 text-gray-700">Today's Sales by Hour</h3>
           <div className="h-64">
-            <Bar 
-              data={chartDataToday} 
-              options={{ 
+            <Bar
+              data={chartDataToday}
+              options={{
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
                   y: {
                     beginAtZero: true,
-                    title: {
-                      display: true,
-                      text: 'Quantity Sold'
-                    }
+                    title: { display: true, text: 'Quantity Sold' }
                   },
                   x: {
-                    title: {
-                      display: true,
-                      text: 'Hour of Day'
-                    }
+                    title: { display: true, text: 'Hour of Day' }
                   }
                 }
-              }} 
+              }}
             />
           </div>
         </div>
@@ -146,27 +146,21 @@ function SalesGraph({ salesHistory = [] }) {
         <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
           <h3 className="text-lg font-semibold mb-3 text-gray-700">Last 7 Days Sales</h3>
           <div className="h-64">
-            <Line 
-              data={chartDataLast7Days} 
-              options={{ 
+            <Line
+              data={chartDataLast7Days}
+              options={{
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
                   y: {
                     beginAtZero: true,
-                    title: {
-                      display: true,
-                      text: 'Quantity Sold'
-                    }
+                    title: { display: true, text: 'Quantity Sold' }
                   },
                   x: {
-                    title: {
-                      display: true,
-                      text: 'Date'
-                    }
+                    title: { display: true, text: 'Date' }
                   }
                 }
-              }} 
+              }}
             />
           </div>
         </div>
@@ -174,27 +168,21 @@ function SalesGraph({ salesHistory = [] }) {
         <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
           <h3 className="text-lg font-semibold mb-3 text-gray-700">Last 30 Days Sales</h3>
           <div className="h-64">
-            <Line 
-              data={chartDataLast30Days} 
-              options={{ 
+            <Line
+              data={chartDataLast30Days}
+              options={{
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
                   y: {
                     beginAtZero: true,
-                    title: {
-                      display: true,
-                      text: 'Quantity Sold'
-                    }
+                    title: { display: true, text: 'Quantity Sold' }
                   },
                   x: {
-                    title: {
-                      display: true,
-                      text: 'Date'
-                    }
+                    title: { display: true, text: 'Date' }
                   }
                 }
-              }} 
+              }}
             />
           </div>
         </div>

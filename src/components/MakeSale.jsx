@@ -1,26 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PopDownBox from './PopDownBox';
+import UserContext from '../context/UserContext';
+import axios from 'axios';
 
-function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }) {
+function MakeSale() {
   const [selectedPartId, setSelectedPartId] = useState('');
   const [quantitySold, setQuantitySold] = useState('');
-  const [date, setDate] = useState(() => {
-    const now = new Date();
-    // Convert to local datetime string in correct format for input
-    return now.toISOString().slice(0, 16);
-  });
   const [customBill, setCustomBill] = useState('');
+  const [date, setDate] = useState(getLocalDateTimeString());
   const [popOut, setPopOut] = useState(false);
+
+  const { garageParts, setGarageParts, salesHistory, setSalesHistory } = useContext(UserContext);
 
   useEffect(() => {
     setTimeout(() => {
       setPopOut(false);
     }, 1000);
   }, [salesHistory]);
+  
+  useEffect(() => {
+    if (salesHistory.length > 0) {
+      const timer = setTimeout(() => setPopOut(false), 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [salesHistory]);
 
-  const handleAddSale = (e) => {
+  function getLocalDateTimeString() {
+    const now = new Date();
+    const offset = now.getTimezoneOffset();
+    const local = new Date(now.getTime() - offset * 60000);
+    return local.toISOString().slice(0, 16);
+  }
+
+  const handleAddSale = async (e) => {
     e.preventDefault();
-    const part = garageParts.find(p => p.id === Number(selectedPartId));
+
+    const part = garageParts.find(p => p._id === selectedPartId);
     if (!part || !quantitySold || !date) {
       alert('Please select a part, quantity, and date.');
       return;
@@ -30,33 +45,39 @@ function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }
     const totalBill = customBill ? Number(customBill) : autoBill;
 
     const newSale = {
-      id: Date.now(),
-      partId: part.id,
+      partId: part._id,
       quantitySold: Number(quantitySold),
-      date: new Date(date).toISOString(), // Store as ISO string
+      date: new Date(date).toISOString(),
       totalBill,
     };
 
-    const updatedParts = garageParts.map(p =>
-      p.id === part.id
-        ? {
-            ...p,
-            inventoryCount: p.inventoryCount - Number(quantitySold),
-            sold: p.sold + Number(quantitySold),
-          }
-        : p
-    );
+    try {
+      const res = await axios.post('http://localhost:5000/api/sales', newSale);
+      const savedSale = res.data;
 
-    setGarageParts(updatedParts);
-    setSalesHistory([...salesHistory, newSale]);
+      // Update frontend state
+      const updatedParts = garageParts.map(p =>
+        p._id === part._id
+          ? {
+              ...p,
+              inventoryCount: p.inventoryCount - Number(quantitySold),
+              sold: p.sold + Number(quantitySold),
+            }
+          : p
+      );
 
-    // Reset form
-    setSelectedPartId('');
-    setQuantitySold('');
-    setCustomBill('');
-    setPopOut(true);
-    // Reset date to current time
-    setDate(new Date().toISOString().slice(0, 16));
+      setGarageParts(updatedParts);
+      setSalesHistory([...salesHistory, savedSale]);
+
+      // Reset form
+      setSelectedPartId('');
+      setQuantitySold('');
+      setCustomBill('');
+      setDate(getLocalDateTimeString());
+    } catch (err) {
+      console.error('Error adding sale:', err);
+      alert('Failed to add sale. Try again.');
+    }
   };
 
   return (
@@ -79,7 +100,7 @@ function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }
           >
             <option value="">-- Select a part --</option>
             {garageParts.map(part => (
-              <option key={part.id} value={part.id}>
+              <option key={part._id} value={part._id}>
                 {part.name}
               </option>
             ))}
@@ -96,7 +117,6 @@ function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }
             placeholder="Enter quantity"
           />
         </div>
-
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">Sale Date</label>
@@ -124,7 +144,7 @@ function MakeSale({ garageParts, setGarageParts, salesHistory, setSalesHistory }
             <>
               Auto Total Bill:&nbsp;
               <span className="text-green-600">
-                Rs {garageParts.find(p => p.id === Number(selectedPartId)).sellingPrice * Number(quantitySold)}
+                Rs {garageParts.find(p => p._id === selectedPartId)?.sellingPrice * Number(quantitySold)}
               </span>
             </>
           )}

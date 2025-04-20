@@ -1,105 +1,106 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import UserContext from '../context/UserContext';
 import PopDownBox from './PopDownBox';
+import axios from 'axios';
 
-function AddPartForm({ garageParts, setGarageParts }) {
-  const { updateItem, setUpdateItem } = useContext(UserContext);
-  const [popOut, setPopout] = useState(false)
+function AddPartForm() {
+  const { updateItem, setUpdateItem, garageParts, setGarageParts } = useContext(UserContext);
+  const [popOut, setPopout] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
     inventoryCount: 0,
     retailPrice: 0,
     sellingPrice: 0,
-    imageUrl: '',
     sold: 0
   });
-
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef();
+
+  function resetForm() {
+    setFormData({ name: '', category: '', inventoryCount: 0, retailPrice: 0, sellingPrice: 0, sold: 0 });
+    setSelectedFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = null;
+    setUpdateItem(null);
+    setPopout(true);
+    setTimeout(() => setPopout(false), 1000);
+  }
 
   useEffect(() => {
     if (updateItem) {
       setFormData({
-        name: updateItem.name ?? '',
-        category: updateItem.category ?? '',
-        inventoryCount: updateItem.inventoryCount ?? 0,
-        retailPrice: updateItem.retailPrice ?? 0,
-        sellingPrice: updateItem.sellingPrice ?? 0,
-        imageUrl: updateItem.imageUrl ?? '',
-        sold: updateItem.sold ?? 0
+        name: updateItem.name || '',
+        category: updateItem.category || '',
+        inventoryCount: updateItem.inventoryCount || 0,
+        retailPrice: updateItem.retailPrice || 0,
+        sellingPrice: updateItem.sellingPrice || 0,
+        sold: updateItem.sold || 0
       });
     }
-    setTimeout(() => {
-      setPopout(false)
-    }, 1000);
-  }, [updateItem, garageParts]);
+  }, [updateItem]);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
-
     if (name === 'name' && /\d/.test(value)) return;
-
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
-      [name]:
-        name === 'sold' || name.includes('Price') || name === 'inventoryCount'
-          ? Number(value)
-          : value
+      [name]: ['sold', 'inventoryCount', 'retailPrice', 'sellingPrice'].includes(name)
+        ? Number(value)
+        : value
     }));
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChange = e => {
     const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({ ...prev, imageUrl }));
-    }
+    setSelectedFile(file || null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-
-    if (updateItem) {
-      const updatedParts = garageParts.map((part) =>
-        part.id === updateItem.id ? { ...part, ...formData } : part
-      );
-      setGarageParts(updatedParts);
-      setUpdateItem(null);
+    try {
+      const fd = new FormData();
+      fd.append('name', formData.name);
+      fd.append('category', formData.category);
+      fd.append('inventoryCount', formData.inventoryCount);
+      fd.append('retailPrice', formData.retailPrice);
+      fd.append('sellingPrice', formData.sellingPrice);
+      fd.append('sold', formData.sold);
+      if (selectedFile) {
+        fd.append('image', selectedFile);
+      }
+  
+      let res;
+      if (updateItem) {
+        res = await axios.put(
+          `http://localhost:5000/api/garage-parts/${updateItem._id}`,
+          fd,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        setGarageParts(garageParts.map(p => p._id === updateItem._id ? res.data : p));
+      } else {
+        res = await axios.post(
+          'http://localhost:5000/api/garage-parts',
+          fd,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
+        );
+        setGarageParts([...garageParts, res.data]);
+      }
+  
       resetForm();
-      return;
+    } catch (err) {
+      console.error('Error submitting form:', err);
+      alert('There was a problem saving the part. Please try again.');
     }
-
-    const newItem = {
-      id: Date.now(),
-      ...formData
-    };
-    setGarageParts([...garageParts, newItem]);
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      category: '',
-      inventoryCount: 0,
-      retailPrice: 0,
-      sellingPrice: 0,
-      imageUrl: '',
-      sold: 0
-    });
-    fileInputRef.current.value = null;
-    setUpdateItem(null);
-    setPopout(true)
   };
 
   return (
     <div className='p-4 bg-[#171717] min-h-screen flex items-center justify-center'>
-      {popOut &&
+      {popOut && (
         <div className='absolute -top-5'>
-          <PopDownBox text={'Item Added Successfully'} />
+          <PopDownBox text={updateItem ? 'Item Updated Successfully' : 'Item Added Successfully'} />
         </div>
-      }
-      <form onSubmit={handleSubmit} className="p-6 bg-white rounded-xl shadow-lg space-y-5 max-w-[80%] max-md:max-w-[98%] border border-gray-100   w-[80%] max-sm:w-[90%] max-md:mb-[28%] mb-[10%]">
+      )}
+      <form onSubmit={handleSubmit} className="p-6 bg-white rounded-xl shadow-lg space-y-5 max-w-[80%] w-[80%]">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Add/Update Inventory Item</h2>
         <p className="text-gray-600 mb-6">Fill in the details below to add or update an item</p>
 
@@ -194,7 +195,7 @@ function AddPartForm({ garageParts, setGarageParts }) {
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">Image</label>
             <div className="flex items-center space-x-4">
-              <label className="flex flex-col items-center justify-center w-full py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              <label className="flex flex-col items-center justify-center w-full py-3 border-2 border-dashed rounded-lg cursor-pointer hover:bg-gray-50">
                 <input
                   type="file"
                   accept="image/*"
@@ -203,18 +204,18 @@ function AddPartForm({ garageParts, setGarageParts }) {
                   className="hidden"
                 />
                 <span className="text-sm text-gray-600">
-                  {formData.imageUrl ? 'Change image' : 'Click to upload image'}
+                  {selectedFile ? 'Change image' : 'Click to upload image'}
                 </span>
-                <span className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG (max 5MB)</span>
+                <span className="text-xs text-gray-500 mt-1">PNG, JPG, JPEG</span>
               </label>
             </div>
-            {formData.imageUrl && (
+            {selectedFile && (
               <div className="mt-3">
                 <p className="text-sm text-gray-600 mb-1">Preview:</p>
                 <img
-                  src={formData.imageUrl}
+                  src={URL.createObjectURL(selectedFile)}
                   alt="Preview"
-                  className="max-h-40 max-w-full object-contain rounded-lg border border-gray-200"
+                  className="max-h-40 object-contain rounded-lg border"
                 />
               </div>
             )}

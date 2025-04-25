@@ -8,6 +8,6 @@ createRoot(document.getElementById('root')).render(
   <UserContextProvider>
     <BrowserRouter>
       <App />
-    </BrowserRouter>,
+    </BrowserRouter>
   </UserContextProvider>
 )

@@ -5,6 +5,8 @@ import { FaList, FaShoppingCart, FaCashRegister } from "react-icons/fa";
 import { HiOutlineViewGridAdd } from "react-icons/hi";
 import { NavLink } from 'react-router-dom';
 import Switch from '../Icons/Switch';
+import { MdLogout } from "react-icons/md";
+
 
 function Sidebar() {
 
@@ -17,11 +19,11 @@ function Sidebar() {
     const [sidebarHide, setSidebarHide] = useState(false);
 
     const navItems = [
-        { path: "/", label: "Dashboard", icon: <MdSpaceDashboard className="size-7" /> },
-        { path: "/itemsList", label: "Items List", icon: <FaList className="size-6" /> },
-        { path: "/saleList", label: "Sale List", icon: <FaShoppingCart className="size-6" /> },
-        { path: "/makeList", label: "Make Sale", icon: <FaCashRegister className="size-6" /> },
-        { path: "/addItems", label: "Add Items", icon: <HiOutlineViewGridAdd className="size-7" /> },
+        { path: "/", label: "Dashboard", icon: <MdSpaceDashboard className="size-7 max-[350px]:size-5" /> },
+        { path: "/itemsList", label: "Items List", icon: <FaList className="size-6 max-[350px]:size-5" /> },
+        { path: "/saleList", label: "Sale List", icon: <FaShoppingCart className="size-6 max-[350px]:size-5" /> },
+        { path: "/makeList", label: "Make Sale", icon: <FaCashRegister className="size-6 max-[350px]:size-5" /> },
+        { path: "/addItems", label: "Add Items", icon: <HiOutlineViewGridAdd className="size-7 max-[350px]:size-5" /> },
     ];
 
     return (
@@ -34,14 +36,14 @@ function Sidebar() {
                 <Switch setSidebarHide={setSidebarHide} sidebarHide={sidebarHide} />
             </div>
 
-            <div className='max-md:fixed max-md:bottom-0 max-md:w-full'>
+            <div className='max-md:fixed max-md:bottom-0 max-md:w-full flex justify-between flex-col max-md:flex-row  '>
                 <ul className='max-md:flex max-md:items-center max-md:justify-around max-md:w-full'>
                     {navItems.map(({ path, label, icon }) => (
                         <li key={path}>
                             <NavLink
                                 to={path}
                                 className={({ isActive }) =>
-                                    `flex items-center gap-4 px-5 py-4 cursor-pointer duration-700 rounded
+                                    `flex items-center gap-4 px-5 py-4 max-[360px]:px-4 max-[350px]:gap-0 cursor-pointer duration-700 rounded
                                     ${isActive ? 'bg-white/30 text-white font-semibold' : 'text-white hover:bg-white/20'}`
                                 }
                             >
@@ -50,7 +52,10 @@ function Sidebar() {
                             </NavLink>
                         </li>
                     ))}
-                    <button className='bg-red-500 text-white px-3 py-2  md:w-full md:mt-28' onClick={logout}>Log Out</button>
+                    <button className='flex items-center w-full max-md:w-fit gap-4 px-5 py-4 max-[360px]:px-4 max-[350px]:gap-0 cursor-pointer duration-700 rounded  text-white font-semibold hover:bg-white/30 active:bg-white/30' onClick={logout}>
+                    <MdLogout className='size-7' />
+                        <span className='max-md:hidden'>Log Out</span>
+                    </button>
                 </ul>
             </div>
             

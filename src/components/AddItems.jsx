@@ -100,7 +100,7 @@ function AddPartForm() {
           <PopDownBox text={updateItem ? 'Item Updated Successfully' : 'Item Added Successfully'} />
         </div>
       )}
-      <form onSubmit={handleSubmit} className="p-6 bg-white rounded-xl shadow-lg space-y-5 max-w-[80%] w-[80%]">
+      <form onSubmit={handleSubmit} className="p-6 bg-white rounded-xl shadow-lg space-y-5 w-[80%] max-md:w-[95%]">
         <h2 className="text-2xl font-bold text-gray-800 mb-2">Add/Update Inventory Item</h2>
         <p className="text-gray-600 mb-6">Fill in the details below to add or update an item</p>
 

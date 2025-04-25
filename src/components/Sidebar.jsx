@@ -7,6 +7,13 @@ import { NavLink } from 'react-router-dom';
 import Switch from '../Icons/Switch';
 
 function Sidebar() {
+
+    function logout()
+    {
+        localStorage.setItem("token",0);
+        window.location.reload();
+        
+    }
     const [sidebarHide, setSidebarHide] = useState(false);
 
     const navItems = [
@@ -43,8 +50,10 @@ function Sidebar() {
                             </NavLink>
                         </li>
                     ))}
+                    <button className='bg-red-500 text-white px-3 py-2  md:w-full md:mt-28' onClick={logout}>Log Out</button>
                 </ul>
             </div>
+            
         </div>
     );
 }

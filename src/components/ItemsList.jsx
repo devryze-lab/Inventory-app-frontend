@@ -30,7 +30,7 @@ function ItemsList() {
     const confirmDelete = window.confirm("Are you sure you want to delete this item?");
     if (!confirmDelete) return;
 
-    axios.delete(`http://localhost:5000/api/garage-Parts/${id}`)
+    axios.delete(`https://inventory-app-backend-five.vercel.app/api/garage-Parts/${id}`)
       .then(() => {
         const updatedGarageParts = garageParts.filter(item => item._id !== id);
         setGarageParts(updatedGarageParts);

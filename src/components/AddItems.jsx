@@ -72,14 +72,14 @@ function AddPartForm() {
       let res;
       if (updateItem) {
         res = await axios.put(
-          `http://localhost:5000/api/garage-parts/${updateItem._id}`,
+          `https://inventory-app-backend-five.vercel.app/api/garage-parts/${updateItem._id}`,
           fd,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
         setGarageParts(garageParts.map(p => p._id === updateItem._id ? res.data : p));
       } else {
         res = await axios.post(
-          'http://localhost:5000/api/garage-parts',
+          'https://inventory-app-backend-five.vercel.app/api/garage-parts',
           fd,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );

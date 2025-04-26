@@ -18,7 +18,7 @@ const Loginpage = () => {
         console.log(formData);
         try {
 
-            const response = await axios.post("http://localhost:5000/api/admins", formData);
+            const response = await axios.post("https://inventory-app-backend-five.vercel.app/api/admins", formData);
             console.log("Form data submitted successfully:", response.data);
             localStorage.setItem("token", response.data);
             window.location.reload();

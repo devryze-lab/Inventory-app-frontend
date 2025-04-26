@@ -14,9 +14,10 @@ function App() {
   const token = localStorage.getItem("token");
   return (
     <>
-    {token == 0 &&
+    {(token == 0 || token == null) &&
     <div> <Loginpage/></div>
     }
+    
     {token == 1 && 
     <div className="flex overflow-hidden">
       <Sidebar />

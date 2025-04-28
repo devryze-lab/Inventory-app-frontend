@@ -20,7 +20,7 @@ function MakeList() {
     if (!saleToDelete) return;
 
     try {
-      await axios.delete(`https://inventory-app-backend-five.vercel.app/api/sales/${saleId}`)
+      await axios.delete(`https://inventory-app-backend-production-75de.up.railway.app/api/sales/${saleId}`)
       const updatedParts = garageParts.map(part => part._id === saleToDelete.partId ? { ...part, inventoryCount: part.inventoryCount + saleToDelete.quantitySold, sold: part.sold - saleToDelete.quantitySold, } : part)
       setGarageParts(updatedParts);
       setSalesHistory(salesHistory.filter(sale => sale._id !== saleId));
@@ -52,7 +52,7 @@ function MakeList() {
     if (!confirm) return;
   
     try {
-      await axios.delete('https://inventory-app-backend-five.vercel.app/api/sales'); // 🧠 Backend: DELETE all sales
+      await axios.delete('https://inventory-app-backend-production-75de.up.railway.app//api/sales'); // 🧠 Backend: DELETE all sales
   
       const restoredParts = garageParts.map(part => {
         const totalSold = salesHistory

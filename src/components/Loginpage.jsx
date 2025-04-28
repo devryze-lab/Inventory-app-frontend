@@ -34,7 +34,7 @@ const Loginpage = () => {
 
     return (
         <>
-           <div className="flex min-h-full flex-1 flex-col items-center justify-center px-6 py-12 lg:px-8 h-[50rem] bg-center bg-cover bg-[url(../../public/logoHaji.jpg)] bg-gray-100">
+           <div className="flex min-h-full flex-1 flex-col items-center justify-center px-6 py-12 lg:px-8 h-[50rem] bg-center bg-cover bg-[url(/public/logoHaji.jpg)] bg-gray-100">
   {/* Glassmorphism container */}
   <div className='bg-white/80 backdrop-blur-sm w-[30rem] h-[30rem] rounded-lg shadow-xl ring-1 ring-gray-200/50 p-8'>
     <div className="sm:mx-auto sm:w-full sm:max-w-sm">

@@ -13,16 +13,6 @@ function App() {
 
   return (
     <>
-<<<<<<< HEAD
-    {(token == 0 || token == null) &&
-    <div> <Loginpage/></div>
-    }
-    
-    {token == 1 && 
-    <div className="flex overflow-hidden">
-      <Sidebar />
-      <div className="h-screen w-[100%] overflow-y-auto">
-=======
       {token === "1" ? (
         <div className="flex overflow-hidden">
           <Sidebar />
@@ -38,7 +28,6 @@ function App() {
           </div>
         </div>
       ) : (
->>>>>>> cfd5029 (Your update message)
         <Routes>
           <Route path="/loginpage" element={<Loginpage />} />
           {/* Redirect all other routes to login */}

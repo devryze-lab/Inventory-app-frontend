@@ -57,7 +57,7 @@ function Sidebar() {
                                 }>
                     <button className='flex items-center gap-4'>
                     <MdLogout className='size-7' />
-                        <span className='max-md:hidden'>Log Out</span>
+                        <span className={`${sidebarHide ? 'hidden' : 'text-lg max-md:hidden'}`}>Log Out</span>
                     </button>
                     </NavLink>
                     </li>

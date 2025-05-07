@@ -6,14 +6,14 @@ import MakeSale from './components/MakeSale';
 import SaleList from './components/SaleList';
 import Sidebar from './components/Sidebar';
 import Loginpage from './components/Loginpage';
-import { Routes, Route } from 'react-router-dom';
-import { div } from 'framer-motion/client';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 function App() {
-
   const token = localStorage.getItem("token");
+
   return (
     <>
+<<<<<<< HEAD
     {(token == 0 || token == null) &&
     <div> <Loginpage/></div>
     }
@@ -22,28 +22,29 @@ function App() {
     <div className="flex overflow-hidden">
       <Sidebar />
       <div className="h-screen w-[100%] overflow-y-auto">
+=======
+      {token === "1" ? (
+        <div className="flex overflow-hidden">
+          <Sidebar />
+          <div className="h-screen w-[100%] overflow-y-auto">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/itemsList" element={<ItemsList />} />
+              <Route path="/saleList" element={<SaleList />} />
+              <Route path="/makeList" element={<MakeSale />} />
+              <Route path="/addItems" element={<AddItems />} />
+              <Route path="/loginpage" element={<Navigate to="/" />} />
+            </Routes>
+          </div>
+        </div>
+      ) : (
+>>>>>>> cfd5029 (Your update message)
         <Routes>
-          <Route path="/" element={<Dashboard  />} />
-          <Route
-            path="/itemsList"
-            element={<ItemsList />}
-          />
-          <Route
-            path="/saleList"
-            element={<SaleList  />}
-          />
-          <Route
-            path="/makeList"
-            element={<MakeSale />}
-          />
-          <Route
-            path="/addItems"
-            element={<AddItems />}
-          />
+          <Route path="/loginpage" element={<Loginpage />} />
+          {/* Redirect all other routes to login */}
+          <Route path="*" element={<Navigate to="/loginpage" />} />
         </Routes>
-      </div>
-    </div>
-    }
+      )}
     </>
   );
 }

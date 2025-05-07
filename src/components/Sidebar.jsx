@@ -13,8 +13,6 @@ function Sidebar() {
     function logout()
     {
         localStorage.setItem("token",0);
-        window.location.reload();
-        
     }
     const [sidebarHide, setSidebarHide] = useState(false);
 
@@ -37,13 +35,13 @@ function Sidebar() {
             </div>
 
             <div className='max-md:fixed max-md:bottom-0 max-md:w-full flex justify-between flex-col max-md:flex-row  '>
-                <ul className='max-md:flex max-md:items-center max-md:justify-around max-md:w-full'>
+                <ul className='max-md:flex max-md:items-center max-md:justify-around max-[400px]:justify-center max-md:w-full'>
                     {navItems.map(({ path, label, icon }) => (
                         <li key={path}>
                             <NavLink
                                 to={path}
                                 className={({ isActive }) =>
-                                    `flex items-center gap-4 px-5 py-4 max-[360px]:px-4 max-[350px]:gap-0 cursor-pointer duration-700 rounded
+                                    `flex items-center gap-4 px-5 py-4 max-[400px]:px-4 max-[400px]:gap-0 cursor-pointer duration-700 rounded
                                     ${isActive ? 'bg-white/30 text-white font-semibold' : 'text-white hover:bg-white/20'}`
                                 }
                             >
@@ -52,10 +50,17 @@ function Sidebar() {
                             </NavLink>
                         </li>
                     ))}
-                    <button className='flex items-center w-full max-md:w-fit gap-4 px-5 py-4 max-[360px]:px-4 max-[350px]:gap-0 cursor-pointer duration-700 rounded  text-white font-semibold hover:bg-white/30 active:bg-white/30' onClick={logout}>
+                    <li onClick={logout} >
+                    <NavLink to="/loginpage" className={({ isActive }) =>
+                                    `flex items-center gap-4 px-5 py-4 max-[400px]:px-4 max-[400px]:gap-0 cursor-pointer duration-700 rounded
+                                    ${isActive ? 'bg-white/30 text-white font-semibold' : 'text-white hover:bg-white/20'}`
+                                }>
+                    <button className='flex items-center gap-4'>
                     <MdLogout className='size-7' />
                         <span className='max-md:hidden'>Log Out</span>
                     </button>
+                    </NavLink>
+                    </li>
                 </ul>
             </div>
             

@@ -13,6 +13,7 @@ function Sidebar() {
     function logout()
     {
         localStorage.setItem("token",0);
+        window.location.reload();
     }
     const [sidebarHide, setSidebarHide] = useState(false);
 

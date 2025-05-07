@@ -78,7 +78,7 @@ function ItemsList() {
               <img
                 loading='lazy'
                 className='min-w-full object-cover rounded-lg'
-                src={item.imageUrl ? `https://inventory-app-backend-production-75de.up.railway.app//${item.imageUrl}` : 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
+                src={item.imageUrl ? `https://inventory-app-backend-production-75de.up.railway.app${item.imageUrl}` : 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
                 alt={item.name}
               />
               <div className='px-3 pb-3'>

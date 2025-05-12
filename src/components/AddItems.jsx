@@ -2,28 +2,28 @@ import React, { useState, useRef, useContext, useEffect } from 'react';
 import UserContext from '../context/UserContext';
 import PopDownBox from './PopDownBox';
 import axios from 'axios';
+import Spinner from './spinner/Spinner';
 
 function AddPartForm() {
   const { updateItem, setUpdateItem, garageParts, setGarageParts } = useContext(UserContext);
   const [popOut, setPopout] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     category: '',
-    inventoryCount: 0,
-    retailPrice: 0,
-    sellingPrice: 0,
-    sold: 0
+    inventoryCount: '',
+    retailPrice: '',
+    sellingPrice: '',
+    sold: ''
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef();
 
   function resetForm() {
-    setFormData({ name: '', category: '', inventoryCount: 0, retailPrice: 0, sellingPrice: 0, sold: 0 });
+    setFormData({ name: '', category: '', inventoryCount: '', retailPrice: '', sellingPrice: '', sold: '' });
     setSelectedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = null;
     setUpdateItem(null);
-    setPopout(true);
-    setTimeout(() => setPopout(false), 1000);
   }
 
   useEffect(() => {
@@ -31,17 +31,16 @@ function AddPartForm() {
       setFormData({
         name: updateItem.name || '',
         category: updateItem.category || '',
-        inventoryCount: updateItem.inventoryCount || 0,
-        retailPrice: updateItem.retailPrice || 0,
-        sellingPrice: updateItem.sellingPrice || 0,
-        sold: updateItem.sold || 0
+        inventoryCount: updateItem.inventoryCount || '',
+        retailPrice: updateItem.retailPrice || '',
+        sellingPrice: updateItem.sellingPrice || '',
+        sold: updateItem.sold || ''
       });
     }
   }, [updateItem]);
 
   const handleChange = e => {
     const { name, value } = e.target;
-    if (name === 'name' && /\d/.test(value)) return;
     setFormData(prev => ({
       ...prev,
       [name]: ['sold', 'inventoryCount', 'retailPrice', 'sellingPrice'].includes(name)
@@ -57,6 +56,7 @@ function AddPartForm() {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setIsLoading(true)
     try {
       const fd = new FormData();
       fd.append('name', formData.name);
@@ -85,11 +85,14 @@ function AddPartForm() {
         );
         setGarageParts([...garageParts, res.data]);
       }
-  
+      setPopout(true);
+      setTimeout(() => setPopout(false), 1000);
       resetForm();
     } catch (err) {
       console.error('Error submitting form:', err);
       alert('There was a problem saving the part. Please try again.');
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -234,7 +237,7 @@ function AddPartForm() {
             type="submit"
             className="px-5 py-2.5 bg-[#171717] text-white rounded-lg hover:bg-[black] cursor-pointer transition-colors font-medium"
           >
-            {updateItem ? 'Update Item' : 'Add Item'}
+            {isLoading ? <Spinner/> :updateItem ? 'Update Item' : 'Add Item'}
           </button>
         </div>
       </form>

@@ -40,6 +40,7 @@ function ItemsList() {
         console.error("Error deleting item:", err);
         alert("Failed to delete the item. Please try again.");
       });
+      setSearchItem('')
   }
 
   function filterSearchedValue(value) {
@@ -52,9 +53,10 @@ function ItemsList() {
   }
 
   function handleEdit(id) {
-    let item = displayedParts.find(card => card.id === id)
+    let item = displayedParts.find(card => card._id === id)
     setUpdateItem(item)
   }
+
 
   return (
     <div className='p-4 bg-[#171717] min-h-screen'>
@@ -122,7 +124,7 @@ function ItemsList() {
                     }
                   >
                     <button
-                      onClick={() => handleEdit(item.id)}
+                      onClick={() => handleEdit(item._id)}
                       className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer text-emerald-600 shadow-sm transition-all duration-200"
                       title="Mark as Paid"
                     >

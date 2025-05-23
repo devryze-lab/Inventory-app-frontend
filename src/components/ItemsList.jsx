@@ -121,7 +121,8 @@ function ItemsList() {
 
   return (
     <>
-      <div className='p-4 bg-[#171717] min-h-screen'>
+      {/* Fixed: Added proper container with padding bottom for mobile bottom nav */}
+      <div className='p-4 bg-[#171717] min-h-screen pb-20 md:pb-4'>
         <div className='flex flex-col gap-10'>
           <div className='w-full flex justify-center relative'>
             <input
@@ -136,11 +137,12 @@ function ItemsList() {
             </div>
           </div>
 
-          <div className='relative'>
+          {/* Fixed: Removed relative positioning that might cause z-index issues */}
+          <div>
             {/* Loading state - positioned under search bar, not full screen */}
             {isLoading && displayedParts.length > 0 && (
               <div className='w-full bg-[#171717] py-20 flex items-center justify-center'>
-                <div className='text-center text-white flex gap-4 items-center  justify-center'>
+                <div className='text-center text-white flex gap-4 items-center justify-center'>
                   <div className='text-2xl mb-4'><Loader/></div>
                   <div className='text-sm'>
                     {loadedImages.size} / {displayedParts.length} items loaded
@@ -150,7 +152,7 @@ function ItemsList() {
             )}
 
             {/* Show message when no items found - but only after initial load */}
-            {!displayedParts.length === 0 && !isLoading && !isInitialLoad && (
+            {displayedParts.length === 0 && !isLoading && !isInitialLoad && (
               <div className='text-center text-white text-xl py-20'>
                 {searchItem ? `No items found for "${searchItem}"` : 'No items available'}
               </div>
@@ -158,11 +160,9 @@ function ItemsList() {
 
             {/* Show loading message during initial server request */}
             {isInitialLoad && garageParts.length === 0 && (
-              <div className='text-center text-white text-xl py-20 flex  items-center justify-center gap-4'>
+              <div className='text-center text-white text-xl py-20 flex items-center justify-center gap-4'>
                 <Loader />
-                <p>
-                Loading items...
-                </p>
+                <p>Loading items...</p>
               </div>
             )}
 

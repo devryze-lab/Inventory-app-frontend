@@ -172,7 +172,6 @@ function ItemsList() {
                 {displayedParts.map((item) => (
                   <div key={item._id} className="bg-white rounded-xl shadow-md break-inside-avoid mb-4">
                     <img
-                      loading='lazy'
                       className='min-w-full object-cover rounded-lg'
                       onLoad={() => handleImageLoad(item._id)}
                       onError={() => handleImageLoad(item._id)} // Also count failed loads

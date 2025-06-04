@@ -8,8 +8,8 @@ const UserContextProvider = ({children}) => {
     const [salesHistory, setSalesHistory] = useState([])
 
     useEffect(() => {
-        axios.get('https://inventory-app-backend-production-75de.up.railway.app/api/garage-Parts').then(res => setGarageParts(res.data));
-        axios.get('https://inventory-app-backend-production-75de.up.railway.app/api/sales').then(res => setSalesHistory(res.data))
+        axios.get('https://inventory-app-backend-uf6l.onrender.com/api/garage-Parts').then(res => setGarageParts(res.data));
+        axios.get('https://inventory-app-backend-uf6l.onrender.com/api/sales').then(res => setSalesHistory(res.data))
     }, [])
     
 

@@ -24,7 +24,7 @@ function MakeList() {
     if (!saleToDelete) return;
 
     try {
-      await axios.delete(`https://inventory-app-backend-production-75de.up.railway.app/api/sales/${saleId}`)
+      await axios.delete(`https://inventory-app-backend-uf6l.onrender.com/api/sales/${saleId}`)
       
       // Update garage parts inventory
       const updatedParts = garageParts.map(part => 
@@ -53,7 +53,7 @@ function MakeList() {
   
     try {
       // Fixed: Remove extra slash in URL
-      await axios.delete('https://inventory-app-backend-production-75de.up.railway.app/api/sales');
+      await axios.delete('https://inventory-app-backend-uf6l.onrender.com/api/sales');
   
       // Calculate and restore inventory for all parts
       const restoredParts = garageParts.map(part => {

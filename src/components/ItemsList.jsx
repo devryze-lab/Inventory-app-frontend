@@ -176,7 +176,7 @@ function ItemsList() {
                       onLoad={() => handleImageLoad(item._id)}
                       onError={() => handleImageLoad(item._id)} // Also count failed loads
                       src={item.imageUrl ? 
-                        `https://inventory-app-backend-uf6l.onrender.com${item.imageUrl}` : 
+                        `https://inventory-app-backend-uf6l.onrender.com/${item.imageUrl}` : 
                         'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'
                       }
                       alt={item.name}

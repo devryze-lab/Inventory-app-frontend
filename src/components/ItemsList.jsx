@@ -39,7 +39,7 @@ function ItemsList() {
     console.log('=== END DEBUG ===');
   }, [garageParts]);
 
-  
+
   function shuffleArray(arr) {
     const copied = [...arr];
     for (let i = copied.length - 1; i > 0; i--) {
@@ -68,7 +68,7 @@ function ItemsList() {
     const confirmDelete = window.confirm("Are you sure you want to delete this item?");
     if (!confirmDelete) return;
 
-    axios.delete(`https://inventory-app-backend-production-75de.up.railway.app/api/garage-Parts/${id}`)
+    axios.delete(`https://inventory-app-backend-uf6l.onrender.com/api/garage-Parts/${id}`)
       .then(() => {
         const updatedGarageParts = garageParts.filter(item => item._id !== id);
         setGarageParts(updatedGarageParts);
@@ -178,8 +178,10 @@ function ItemsList() {
                     <img
                       className='min-w-full object-cover rounded-lg'
                       onLoad={() => handleImageLoad(item._id)}
-                      onError={() => handleImageLoad(item._id)}
-                      src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
+onError={() => handleImageLoad(item._id)}
+src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
+
+                      
                       alt={item.name}
                     />
                     <div className='px-3 pb-3'>

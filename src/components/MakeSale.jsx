@@ -52,7 +52,7 @@ function MakeSale() {
     };
 
     try {
-      const res = await axios.post('https://inventory-app-backend-production-75de.up.railway.app/api/sales', newSale);
+      const res = await axios.post('https://inventory-app-backend-uf6l.onrender.com/api/sales', newSale);
       const savedSale = res.data;
 
       // Update frontend state

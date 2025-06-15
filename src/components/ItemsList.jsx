@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { FiShoppingCart, FiBox } from "react-icons/fi";
 import { FaTag } from "react-icons/fa";
 import { IoSearchSharp } from "react-icons/io5";
@@ -12,17 +12,23 @@ import Loader from './loader/Loader';
 function ItemsList() {
   const [displayedParts, setDisplayedParts] = useState([]);
   const [searchItem, setSearchItem] = useState('');
-  const [loadedImages, setLoadedImages] = useState(new Set());
-  const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { setUpdateItem, garageParts, setGarageParts } = useContext(UserContext);
+  
+  // Track if we've already done initial setup
+  const hasInitialized = useRef(false);
 
-  // FIXED: Initialize displayedParts when garageParts loads
+  // Initialize displayedParts when garageParts loads for the first time
   useEffect(() => {
-    if (garageParts.length > 0) {
+    if (garageParts.length > 0 && !hasInitialized.current) {
       setDisplayedParts(garageParts);
-      // Reset loading states when new data comes in
-      setLoadedImages(new Set());
-      setIsLoading(true); // Start loading images
+      setIsInitialLoading(false);
+      hasInitialized.current = true;
+    } else if (garageParts.length === 0 && hasInitialized.current) {
+      // Handle case where all items are deleted
+      setDisplayedParts([]);
+      setIsInitialLoading(false);
     }
   }, [garageParts]);
 
@@ -35,53 +41,34 @@ function ItemsList() {
     return copied;
   }
 
-  // Handle individual image load
-  function handleImageLoad(itemId) {
-    setLoadedImages(prev => {
-      const newSet = new Set(prev);
-      newSet.add(itemId);
-
-      // Check if all images are loaded
-      if (newSet.size >= displayedParts.length && displayedParts.length > 0) {
-        setIsLoading(false);
-      }
-
-      return newSet;
-    });
-  }
-
-  function deleteCard(id) {
+  async function deleteCard(id) {
     const confirmDelete = window.confirm("Are you sure you want to delete this item?");
     if (!confirmDelete) return;
 
-    axios.delete(`https://inventory-app-backend-production-75de.up.railway.app/api/garage-Parts/${id}`)
-      .then(() => {
-        const updatedGarageParts = garageParts.filter(item => item._id !== id);
-        setGarageParts(updatedGarageParts);
+    setIsDeleting(true);
 
-        // Update displayed parts based on current search
-        const filteredParts = searchItem
-          ? updatedGarageParts.filter(p =>
+    try {
+      await axios.delete(`https://inventory-app-backend-uf6l.onrender.com/api/garage-Parts/${id}`);
+      
+      const updatedGarageParts = garageParts.filter(item => item._id !== id);
+      setGarageParts(updatedGarageParts);
+
+      // Update displayed parts based on current search - no loading needed
+      const filteredParts = searchItem
+        ? updatedGarageParts.filter(p =>
             p.name.toLowerCase().includes(searchItem.toLowerCase()) ||
             p.category.toLowerCase().includes(searchItem.toLowerCase())
           )
-          : updatedGarageParts;
+        : updatedGarageParts;
 
-        setDisplayedParts(filteredParts);
-
-        // Properly reset loading state
-        setLoadedImages(new Set());
-        if (filteredParts.length > 0) {
-          setIsLoading(true); // Start loading images for remaining items
-        } else {
-          setIsLoading(false);
-        }
-      })
-      .catch(err => {
-        console.error("Error deleting item:", err);
-        alert("Failed to delete the item. Please try again.");
-        setIsLoading(false);
-      });
+      setDisplayedParts(filteredParts);
+      
+    } catch (err) {
+      console.error("Error deleting item:", err);
+      alert("Failed to delete the item. Please try again.");
+    } finally {
+      setIsDeleting(false);
+    }
 
     setSearchItem('');
   }
@@ -89,32 +76,19 @@ function ItemsList() {
   function filterSearchedValue(value) {
     setSearchItem(value);
 
+    // Instant filtering - no loading needed since data is already available
     const filtered = garageParts.filter(p =>
       p.name.toLowerCase().includes(value.toLowerCase()) ||
       p.category.toLowerCase().includes(value.toLowerCase())
     );
 
     setDisplayedParts(filtered);
-    // Reset loading states for search
-    setLoadedImages(new Set());
-    if (filtered.length > 0) {
-      setIsLoading(true); // Start loading images for filtered results
-    } else {
-      setIsLoading(false); // No items to load
-    }
   }
 
   function handleEdit(id) {
     let item = displayedParts.find(card => card._id === id);
     setUpdateItem(item);
   }
-
-  // Check loading completion when displayedParts or loadedImages change
-  useEffect(() => {
-    if (displayedParts.length > 0 && loadedImages.size >= displayedParts.length) {
-      setIsLoading(false);
-    }
-  }, [displayedParts.length, loadedImages.size]);
 
   return (
     <>
@@ -134,54 +108,63 @@ function ItemsList() {
           </div>
 
           <div>
-            {/* Loading state for images - show when images are still loading */}
-            {isLoading && displayedParts.length > 0 && (
-              <div className='w-full bg-[#171717] py-8 flex items-center justify-center'>
-                <div className='text-center text-white flex gap-4 items-center justify-center'>
-                  <div className='text-2xl'><Loader /></div>
-                  <div className='text-sm'>
-                    Loading images... {loadedImages.size} / {displayedParts.length}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* FIXED: Show loading only when garageParts is empty and we're waiting for data */}
-            {garageParts.length === 0 && (
+            {/* Show loading only during initial data load */}
+            {isInitialLoading && (
               <div className='text-center text-white text-xl py-20 flex items-center justify-center gap-4'>
                 <Loader />
                 <p>Loading items...</p>
               </div>
             )}
 
-            {/* FIXED: Show "no items found" message properly */}
-            {garageParts.length > 0 && displayedParts.length === 0 && searchItem && (
-              <div className='text-center text-white text-xl py-20'>
-                No items found for "{searchItem}"
+            {/* Show deleting state */}
+            {isDeleting && (
+              <div className='fixed inset-0 bg-black/50 flex items-center justify-center z-50'>
+                <div className='bg-white rounded-lg p-6 flex items-center gap-4'>
+                  <Loader />
+                  <p className='text-gray-700'>Deleting item...</p>
+                </div>
               </div>
             )}
 
-            {/* FIXED: Show "no items available" when no items exist at all */}
-            {garageParts.length === 0 && displayedParts.length === 0 && !searchItem && (
+            {/* Show "no items found" message for search results */}
+            {!isInitialLoading && garageParts.length > 0 && displayedParts.length === 0 && searchItem && (
               <div className='text-center text-white text-xl py-20'>
-                No items available
+                <div className='mb-4'>🔍</div>
+                <p>No items found for "{searchItem}"</p>
+                <button 
+                  onClick={() => {
+                    setSearchItem('');
+                    setDisplayedParts(garageParts);
+                  }}
+                  className='mt-4 px-4 py-2 bg-white/20 rounded-lg hover:bg-white/30 transition-all'
+                >
+                  Clear search
+                </button>
               </div>
             )}
 
-            {/* Cards Container - FIXED: Always show when there are items to display */}
-            {displayedParts.length > 0 && (
-              <div 
-                className='columns-4 min-[1700px]:columns-6 max-[1280px]:columns-4 max-[1024px]:columns-3 max-[900px]:columns-2 max-[480px]:columns-1'
-                style={{ opacity: isLoading ? 0.7 : 1, transition: 'opacity 0.3s' }}
-              >
+            {/* Show "no items available" when no items exist at all */}
+            {!isInitialLoading && garageParts.length === 0 && (
+              <div className='text-center text-white text-xl py-20'>
+                <div className='mb-4'>📦</div>
+                <p>No items available</p>
+                <p className='text-sm text-white/70 mt-2'>Add your first item to get started</p>
+              </div>
+            )}
+
+            {/* Cards Container - Show immediately when items are available */}
+            {!isInitialLoading && displayedParts.length > 0 && (
+              <div className='columns-4 min-[1700px]:columns-6 max-[1280px]:columns-4 max-[1024px]:columns-3 max-[900px]:columns-2 max-[480px]:columns-1'>
                 {displayedParts.map((item) => (
-                  <div key={item._id} className="bg-white rounded-xl shadow-md break-inside-avoid mb-4">
+                  <div key={item._id} className="bg-white rounded-xl shadow-md break-inside-avoid mb-4 hover:shadow-lg transition-shadow duration-200">
                     <img
                       className='min-w-full object-cover rounded-lg'
-                      onLoad={() => handleImageLoad(item._id)}
-                      onError={() => handleImageLoad(item._id)}
                       src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
                       alt={item.name}
+                      loading="lazy" // Enable lazy loading for better performance
+                      onError={(e) => {
+                        e.target.src = 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png';
+                      }}
                     />
                     <div className='px-3 pb-3'>
                       <div className='flex flex-wrap items-start justify-between py-2'>
@@ -239,6 +222,7 @@ function ItemsList() {
                           onClick={() => deleteCard(item._id)}
                           className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 cursor-pointer text-[#db4439] shadow-sm transition-all duration-200"
                           title="Delete Item"
+                          disabled={isDeleting}
                         >
                           <RiDeleteBin6Fill className="size-5" />
                         </button>

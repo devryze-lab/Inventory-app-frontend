@@ -17,25 +17,29 @@ function ItemsList() {
   const [isInitialLoad, setIsInitialLoad] = useState(true); // Track if it's the first load
   const { setUpdateItem, garageParts, setGarageParts } = useContext(UserContext);
 
+
   useEffect(() => {
-    // Don't show "no items" message during initial load
-    if (garageParts.length === 0 && isInitialLoad) {
-      return; // Don't update displayedParts yet
-    }
-    
-    const shuffledParts = shuffleArray(garageParts);
-    setDisplayedParts(shuffledParts);
-    setIsInitialLoad(false); // Mark initial load as complete
-    
-    // Only show loading for initial data load, not for user interactions
-    if (shuffledParts.length > 0 && isInitialLoad) {
-      setLoadedImages(new Set());
-      setIsLoading(true);
-    } else {
-      setIsLoading(false);
-    }
+    console.log('=== DEBUG: Checking image data ===');
+    console.log('Total parts:', garageParts.length);
+  
+    garageParts.forEach((part, index) => {
+      console.log(`Part ${index + 1}:`, {
+        id: part._id,
+        name: part.name,
+        // Check all possible image property names
+        imageUrl: part.imageUrl,
+        image: part.image,
+        img: part.img,
+        photo: part.photo,
+        // Show all properties to see what exists
+        allProperties: Object.keys(part)
+      });
+    });
+  
+    console.log('=== END DEBUG ===');
   }, [garageParts]);
 
+  
   function shuffleArray(arr) {
     const copied = [...arr];
     for (let i = copied.length - 1; i > 0; i--) {
@@ -50,12 +54,12 @@ function ItemsList() {
     setLoadedImages(prev => {
       const newSet = new Set(prev);
       newSet.add(itemId);
-      
+
       // Check if all images are loaded
       if (newSet.size >= displayedParts.length && displayedParts.length > 0) {
         setIsLoading(false);
       }
-      
+
       return newSet;
     });
   }
@@ -68,17 +72,17 @@ function ItemsList() {
       .then(() => {
         const updatedGarageParts = garageParts.filter(item => item._id !== id);
         setGarageParts(updatedGarageParts);
-        
+
         // Update displayed parts based on current search
-        const filteredParts = searchItem 
+        const filteredParts = searchItem
           ? updatedGarageParts.filter(p =>
-              p.name.toLowerCase().includes(searchItem.toLowerCase()) ||
-              p.category.toLowerCase().includes(searchItem.toLowerCase())
-            )
+            p.name.toLowerCase().includes(searchItem.toLowerCase()) ||
+            p.category.toLowerCase().includes(searchItem.toLowerCase())
+          )
           : updatedGarageParts;
-        
+
         setDisplayedParts(filteredParts);
-        
+
         // Properly reset loading state
         setLoadedImages(new Set());
         setIsLoading(false); // Don't show loading for delete operations
@@ -88,20 +92,20 @@ function ItemsList() {
         alert("Failed to delete the item. Please try again.");
         setIsLoading(false);
       });
-    
+
     setSearchItem('');
   }
 
   function filterSearchedValue(value) {
     setSearchItem(value);
-    
+
     const filtered = garageParts.filter(p =>
       p.name.toLowerCase().includes(value.toLowerCase()) ||
       p.category.toLowerCase().includes(value.toLowerCase())
     );
-    
+
     setDisplayedParts(filtered);
-    
+
     // Reset loading state properly for search
     setLoadedImages(new Set());
     setIsLoading(false); // Don't show loading for search operations
@@ -143,7 +147,7 @@ function ItemsList() {
             {isLoading && displayedParts.length > 0 && (
               <div className='w-full bg-[#171717] py-20 flex items-center justify-center'>
                 <div className='text-center text-white flex gap-4 items-center justify-center'>
-                  <div className='text-2xl mb-4'><Loader/></div>
+                  <div className='text-2xl mb-4'><Loader /></div>
                   <div className='text-sm'>
                     {loadedImages.size} / {displayedParts.length} items loaded
                   </div>
@@ -174,11 +178,8 @@ function ItemsList() {
                     <img
                       className='min-w-full object-cover rounded-lg'
                       onLoad={() => handleImageLoad(item._id)}
-                      onError={() => handleImageLoad(item._id)} // Also count failed loads
-                      src={item.imageUrl ? 
-                        `https://inventory-app-backend-production-75de.up.railway.app${item.imageUrl}` : 
-                        'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'
-                      }
+                      onError={() => handleImageLoad(item._id)}
+                      src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
                       alt={item.name}
                     />
                     <div className='px-3 pb-3'>
@@ -220,8 +221,7 @@ function ItemsList() {
                         <NavLink
                           to='/addItems'
                           className={({ isActive }) =>
-                            `flex items-center cursor-pointer duration-700 rounded ${
-                              isActive ? 'bg-white/30 text-white font-semibold' : 'text-white hover:bg-white/20'
+                            `flex items-center cursor-pointer duration-700 rounded ${isActive ? 'bg-white/30 text-white font-semibold' : 'text-white hover:bg-white/20'
                             }`
                           }
                         >

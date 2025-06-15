@@ -56,7 +56,8 @@ function AddPartForm() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setIsLoading(true)
+    setIsLoading(true);
+    
     try {
       const fd = new FormData();
       fd.append('name', formData.name);
@@ -65,34 +66,49 @@ function AddPartForm() {
       fd.append('retailPrice', formData.retailPrice);
       fd.append('sellingPrice', formData.sellingPrice);
       fd.append('sold', formData.sold);
+      
       if (selectedFile) {
+        console.log('=== DEBUG: File being uploaded ===');
+        console.log('File name:', selectedFile.name);
+        console.log('File type:', selectedFile.type);
+        console.log('File size:', selectedFile.size);
         fd.append('image', selectedFile);
       }
   
       let res;
       if (updateItem) {
         res = await axios.put(
-          `https://inventory-app-backend-production-75de.up.railway.app/api/garage-parts/${updateItem._id}`,
+          `https://inventory-app-backend-uf6l.onrender.com/api/garage-parts/${updateItem._id}`,
           fd,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
         setGarageParts(garageParts.map(p => p._id === updateItem._id ? res.data : p));
       } else {
         res = await axios.post(
-          'https://inventory-app-backend-production-75de.up.railway.app/api/garage-parts',
+          'https://inventory-app-backend-uf6l.onrender.com/api/garage-parts',
           fd,
           { headers: { 'Content-Type': 'multipart/form-data' } }
         );
         setGarageParts([...garageParts, res.data]);
       }
+  
+      // DEBUG: Check what backend returns
+      console.log('=== DEBUG: Backend Response ===');
+      console.log('Full response:', res.data);
+      console.log('Image URL:', res.data.imageUrl);
+      console.log('Image field:', res.data.image);
+      console.log('All response keys:', Object.keys(res.data));
+      console.log('=== END DEBUG ===');
+  
       setPopout(true);
       setTimeout(() => setPopout(false), 1000);
       resetForm();
     } catch (err) {
       console.error('Error submitting form:', err);
+      console.error('Error response:', err.response?.data);
       alert('There was a problem saving the part. Please try again.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   };
 

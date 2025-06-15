@@ -14,31 +14,17 @@ function ItemsList() {
   const [searchItem, setSearchItem] = useState('');
   const [loadedImages, setLoadedImages] = useState(new Set());
   const [isLoading, setIsLoading] = useState(false);
-  const [isInitialLoad, setIsInitialLoad] = useState(true); // Track if it's the first load
   const { setUpdateItem, garageParts, setGarageParts } = useContext(UserContext);
 
-
+  // FIXED: Initialize displayedParts when garageParts loads
   useEffect(() => {
-    console.log('=== DEBUG: Checking image data ===');
-    console.log('Total parts:', garageParts.length);
-  
-    garageParts.forEach((part, index) => {
-      console.log(`Part ${index + 1}:`, {
-        id: part._id,
-        name: part.name,
-        // Check all possible image property names
-        imageUrl: part.imageUrl,
-        image: part.image,
-        img: part.img,
-        photo: part.photo,
-        // Show all properties to see what exists
-        allProperties: Object.keys(part)
-      });
-    });
-  
-    console.log('=== END DEBUG ===');
+    if (garageParts.length > 0) {
+      setDisplayedParts(garageParts);
+      // Reset loading states when new data comes in
+      setLoadedImages(new Set());
+      setIsLoading(true); // Start loading images
+    }
   }, [garageParts]);
-
 
   function shuffleArray(arr) {
     const copied = [...arr];
@@ -68,7 +54,7 @@ function ItemsList() {
     const confirmDelete = window.confirm("Are you sure you want to delete this item?");
     if (!confirmDelete) return;
 
-    axios.delete(`https://inventory-app-backend-uf6l.onrender.com/api/garage-Parts/${id}`)
+    axios.delete(`https://inventory-app-backend-production-75de.up.railway.app/api/garage-Parts/${id}`)
       .then(() => {
         const updatedGarageParts = garageParts.filter(item => item._id !== id);
         setGarageParts(updatedGarageParts);
@@ -85,7 +71,11 @@ function ItemsList() {
 
         // Properly reset loading state
         setLoadedImages(new Set());
-        setIsLoading(false); // Don't show loading for delete operations
+        if (filteredParts.length > 0) {
+          setIsLoading(true); // Start loading images for remaining items
+        } else {
+          setIsLoading(false);
+        }
       })
       .catch(err => {
         console.error("Error deleting item:", err);
@@ -105,10 +95,13 @@ function ItemsList() {
     );
 
     setDisplayedParts(filtered);
-
-    // Reset loading state properly for search
+    // Reset loading states for search
     setLoadedImages(new Set());
-    setIsLoading(false); // Don't show loading for search operations
+    if (filtered.length > 0) {
+      setIsLoading(true); // Start loading images for filtered results
+    } else {
+      setIsLoading(false); // No items to load
+    }
   }
 
   function handleEdit(id) {
@@ -125,7 +118,6 @@ function ItemsList() {
 
   return (
     <>
-      {/* Fixed: Added proper container with padding bottom for mobile bottom nav */}
       <div className='p-4 bg-[#171717] min-h-screen pb-20 md:pb-4'>
         <div className='flex flex-col gap-10'>
           <div className='w-full flex justify-center relative'>
@@ -141,47 +133,54 @@ function ItemsList() {
             </div>
           </div>
 
-          {/* Fixed: Removed relative positioning that might cause z-index issues */}
           <div>
-            {/* Loading state - positioned under search bar, not full screen */}
+            {/* Loading state for images - show when images are still loading */}
             {isLoading && displayedParts.length > 0 && (
-              <div className='w-full bg-[#171717] py-20 flex items-center justify-center'>
+              <div className='w-full bg-[#171717] py-8 flex items-center justify-center'>
                 <div className='text-center text-white flex gap-4 items-center justify-center'>
-                  <div className='text-2xl mb-4'><Loader /></div>
+                  <div className='text-2xl'><Loader /></div>
                   <div className='text-sm'>
-                    {loadedImages.size} / {displayedParts.length} items loaded
+                    Loading images... {loadedImages.size} / {displayedParts.length}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Show message when no items found - but only after initial load */}
-            {displayedParts.length === 0 && !isLoading && !isInitialLoad && (
-              <div className='text-center text-white text-xl py-20'>
-                {searchItem ? `No items found for "${searchItem}"` : 'No items available'}
-              </div>
-            )}
-
-            {/* Show loading message during initial server request */}
-            {isInitialLoad && garageParts.length === 0 && (
+            {/* FIXED: Show loading only when garageParts is empty and we're waiting for data */}
+            {garageParts.length === 0 && (
               <div className='text-center text-white text-xl py-20 flex items-center justify-center gap-4'>
                 <Loader />
                 <p>Loading items...</p>
               </div>
             )}
 
-            {/* Cards Container - always visible, no opacity changes */}
+            {/* FIXED: Show "no items found" message properly */}
+            {garageParts.length > 0 && displayedParts.length === 0 && searchItem && (
+              <div className='text-center text-white text-xl py-20'>
+                No items found for "{searchItem}"
+              </div>
+            )}
+
+            {/* FIXED: Show "no items available" when no items exist at all */}
+            {garageParts.length === 0 && displayedParts.length === 0 && !searchItem && (
+              <div className='text-center text-white text-xl py-20'>
+                No items available
+              </div>
+            )}
+
+            {/* Cards Container - FIXED: Always show when there are items to display */}
             {displayedParts.length > 0 && (
-              <div className='columns-4 min-[1700px]:columns-6 max-[1280px]:columns-4 max-[1024px]:columns-3 max-[900px]:columns-2 max-[480px]:columns-1'>
+              <div 
+                className='columns-4 min-[1700px]:columns-6 max-[1280px]:columns-4 max-[1024px]:columns-3 max-[900px]:columns-2 max-[480px]:columns-1'
+                style={{ opacity: isLoading ? 0.7 : 1, transition: 'opacity 0.3s' }}
+              >
                 {displayedParts.map((item) => (
                   <div key={item._id} className="bg-white rounded-xl shadow-md break-inside-avoid mb-4">
                     <img
                       className='min-w-full object-cover rounded-lg'
                       onLoad={() => handleImageLoad(item._id)}
-onError={() => handleImageLoad(item._id)}
-src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
-
-                      
+                      onError={() => handleImageLoad(item._id)}
+                      src={item.imageUrl || 'https://salonlfc.com/wp-content/uploads/2018/01/image-not-found-scaled.png'}
                       alt={item.name}
                     />
                     <div className='px-3 pb-3'>
